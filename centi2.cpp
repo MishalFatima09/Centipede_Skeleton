@@ -292,11 +292,6 @@ int main()
     }
 } 
 
-////////////////////////////////////////////////////////////////////////////
-//                                                                        //
-// Write your functions definitions here. Some have been written for you. //
-//                                                                        //
-////////////////////////////////////////////////////////////////////////////
 
 void drawPlayer(sf::RenderWindow& window, float player[], sf::Sprite& playerSprite) {
     playerSprite.setPosition(player[x], player[y]);
