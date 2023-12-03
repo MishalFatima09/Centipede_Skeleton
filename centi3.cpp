@@ -200,7 +200,7 @@ int main()
         		&& centipedeY[i] < mushroomY[j] + boxPixelsY 
         		&& centipedeY[i] + boxPixelsY > mushroomY[j])
         		{
-        	 	// centiMoveRight = !centiMoveRight;
+        	 	//centiMoveRight = !centiMoveRight;
         	 	centipedeY[i] += oneBoxDown;
 			}
         }

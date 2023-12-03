@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <cstdlib>
 
 using namespace std;
 
@@ -31,6 +32,10 @@ const int exists = 2;
 void drawPlayer(sf::RenderWindow& window, float player[], sf::Sprite& playerSprite);
 void moveBullet(float bullet[], sf::Clock& bulletClock);
 void drawBullet(sf::RenderWindow& window, float bullet[], sf::Sprite& bulletSprite);
+void fighterMove(sf::Event& event, float player[], int resolutionX, int resolutionY, int boxPixelsX, int boxPixelsY, int gameColumns);
+void drawCentipede(sf::RenderWindow& window, sf::Sprite& centipedeSprite, sf::Texture& centipedeTexture, sf::Texture& centipedeHeadTexture, int totalcentipieces, 	float centipedeX[], float centipedeY[], int boxPixelsX, int boxPixelsY);
+void bulletHitsShroom(float bullet[], int totalshrooms, float mushroomX[], float mushroomY[], int bulletHitshroom[], sf::Sprite mushroomSprites[], int 			boxPixelsX, int boxPixelsY);
+void drawShrooms(sf::RenderWindow& window, int totalshrooms, float mushroomX[], float mushroomY[], sf::Sprite mushroomSprites[]);
 
 int main()
 {
@@ -70,6 +75,8 @@ int main()
 	sf::Texture centipedeTexture;	//loading textures blah blah
 	sf::Sprite centipedeSprite;
 	centipedeTexture.loadFromFile("Textures/c_body_left_walk.png");
+	sf::Texture centipedeHeadTexture;
+	centipedeHeadTexture.loadFromFile("Textures/c_head_left_walk.png");
 	centipedeSprite.setTexture(centipedeTexture);
 	centipedeSprite.setTextureRect(sf::IntRect(0, 0, boxPixelsX, boxPixelsY));
 
@@ -105,7 +112,7 @@ int main()
         mushroomSprites[i].setTextureRect(sf::IntRect(0, 0, boxPixelsX, boxPixelsY));
     }
     
-     // this is to make it start from random location of first row
+     // this is to make it start from random location of the first row
     int positionX = rand() % resolutionX;
     
     for (int i = 0; i < totalcentipieces; i++)
@@ -115,19 +122,31 @@ int main()
     }
 
     sf::Event e;
-    while (window.isOpen()) {
-        if (spacePressed && bullet[exists] == false) {
+    while (window.isOpen())
+    {
+    
+    
+    
+    
+        if (spacePressed && bullet[exists] == false) 
+        {
             // Fire if space and no bullet alr on screen
             bullet[exists] = true;
             bullet[x] = player[x];
             bullet[y] = player[y] - boxPixelsY;
         }
+        
+        
         window.draw(backgroundSprite);
         drawPlayer(window, player, playerSprite);
-        if (bullet[exists] == true) {
+        if (bullet[exists] == true) 
+        {
             moveBullet(bullet, bulletClock);
             drawBullet(window, bullet, bulletSprite);
         }
+
+
+
 
         // handling spacebar
         while (window.pollEvent(e)) 
@@ -144,32 +163,19 @@ int main()
                 }
             }
         }
-                              
-        sf::Texture centipedeHeadTexture;
-	centipedeHeadTexture.loadFromFile("Textures/c_head_left_walk.png");
+      
+      
+       drawCentipede(window, centipedeSprite, centipedeTexture, centipedeHeadTexture, totalcentipieces, centipedeX, centipedeY, boxPixelsX, boxPixelsY);
 			
-	for (int i = 0; i < totalcentipieces; i++)
-	{
-	    if (i == 11) //for head
-	    {
-	        centipedeSprite.setTexture(centipedeHeadTexture);
-	    } else //bodydydy
-	    {    
-	        centipedeSprite.setTexture(centipedeTexture);
-	    }
 	
-	    centipedeSprite.setTextureRect(sf::IntRect(0, 0, boxPixelsX, boxPixelsY));
-	    centipedeSprite.setPosition(centipedeX[i], centipedeY[i]);
-	    window.draw(centipedeSprite);
-	}
-	
-	bool centiMoveRight = true; 
+	//bool rightside = true;
+	bool rightside = true; 
 	float oneBoxDown = 0.25;
 	
 
-	for (int i = 0; i < totalcentipieces; i++) 
+	for (int i = 0; i < totalcentipieces; ++i) 
 	{
-        	if (centiMoveRight == true) 
+        	if (rightside == true) 
         		{
         		    centipedeX[i] -= 0.5;
         		}
@@ -179,18 +185,17 @@ int main()
         		}
         		
        
-    		if(centipedeX[i] < 0)
+    		if(centipedeX[i] <= 0)
     		{
     		centipedeY[i] += oneBoxDown;
-    		centiMoveRight = false;
-    		//centipedeX[i] = 0;
+    		rightside = false;
     		}
     		
-    		else if(centipedeX[i] + boxPixelsX > resolutionX)
+    		else if(centipedeX[i] + boxPixelsX >= resolutionX)
     		{
     		centipedeY[i] += oneBoxDown;
-    		centiMoveRight = true;
-    		//centipedeX[i] = resolutionX - boxPixelsX; 
+    		rightside= true;
+    		
     		}
     		
     		for (int j = 0; j < totalshrooms; ++j) 
@@ -200,56 +205,87 @@ int main()
         		&& centipedeY[i] < mushroomY[j] + boxPixelsY 
         		&& centipedeY[i] + boxPixelsY > mushroomY[j])
         		{
-        	 	// centiMoveRight = !centiMoveRight;
+        	 	
         	 	centipedeY[i] += oneBoxDown;
 			}
+		
         }
-        } 
-          	
-        // move left
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && player[x] > 0) {
-            player[x] -= 1;
         }
-        // move right
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && player[x] < resolutionX - boxPixelsX) {
-            player[x] += 1;
-        }
-        // move up
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && player[y] > (gameColumns - 5) * boxPixelsY) {
-            player[y] -= 1;
-        }
-        // move down
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && player[y] < resolutionY - boxPixelsY) {
-            player[y] += 1;
-        }
-
-        for (int i = 0; i < totalshrooms; ++i) 
+        
+        
+        
+        
+    /*    
+        int centipedeDirection[totalcentipieces] =  {1};
+        float oneBoxDown = 0.25;
+        for(int i = 0; i < totalcentipieces; i++)
         {
-    		if (bullet[exists] && bullet[x] < mushroomX[i] + boxPixelsX &&
-        	bullet[x] + boxPixelsX > mushroomX[i] &&
-        	bullet[y] < mushroomY[i] + boxPixelsY &&
-        	bullet[y] + boxPixelsY > mushroomY[i]) 
-        	{
+              /*
+              if(centipedeDirection[i] == 1)
+                {
+                centipedeX[i] -=0.5;
+                }
+             	else if(centipedeDirection[i] == -1)
+             	{
+             	centipedeX[i] +=0.5;
+             	}
+             	
 
-      			bulletHitshroom[i]++;
-      	
-        		if (bulletHitshroom[i] == 1)
-            		mushroomSprites[i].setTextureRect(sf::IntRect(32, 0, boxPixelsX, boxPixelsY));
-        		else if (bulletHitshroom[i] == 2)
-        		{
-        		mushroomX[i] = -987;  //pull a lil sneaky just yeet mushroom out of screen
-        		mushroomY[i] = -875;
-        		}
-        		bullet[exists] = false;
+		centipedeX[i] += 0.5 * centipedeDirection[i];
+             	
+             	
+             	if(centipedeX[i] < 0)
+             	{
+             	centipedeY[i] += oneBoxDown;
+             	centipedeDirection[i] *= -1;
+             	}
+             	else if(centipedeX[i] + boxPixelsX > resolutionX )
+             	{
+             	centipedeY[i] += oneBoxDown;
+             	centipedeDirection[i] *= -1;
+             	}
+        
+        }
+        */
+        
+        //bullet collision with centipiece
+        for (int i = 0; i < totalcentipieces; ++i)
+	{
+	    if (centipedeX[i] < bullet[x] + boxPixelsX &&
+        	centipedeX[i] + boxPixelsX > bullet[x] &&
+        	centipedeY[i] < bullet[y] + boxPixelsY &&
+        	centipedeY[i] + boxPixelsY > bullet[y])
+    		{
+
+        	centipedeX[i] = -1000;  // pull another lil sneaky and yeet the segment off screen
+        	centipedeY[i] = -1000;
+
+        	bullet[exists] = false;  // Reset bullet
+
+        	break;
     		}
-	}
+    	}
+	
+	
+	
+	sf::Event event;
+	while (window.pollEvent(event)) 
+	{
+            if (event.type == sf::Event::Closed) 
+            {
+                window.close();
+            }
+        }
+	
+	//calling function for movement of player
+	fighterMove(event, player, resolutionX, resolutionY, boxPixelsX, boxPixelsY, gameColumns);
+	//when mushroom and bullet collide twice, mushroom go disappear
+	bulletHitsShroom(bullet, totalshrooms, mushroomX, mushroomY, bulletHitshroom, mushroomSprites, boxPixelsX, boxPixelsY);
+	//for ... drawing the mushrooms.
+	drawShrooms(window, totalshrooms, mushroomX, mushroomY, mushroomSprites);
 
-         // drawing them shrooms
-         for (int i = 0; i < totalshrooms; ++i) 
-         {
-    		mushroomSprites[i].setPosition(mushroomX[i], mushroomY[i]);
-    		window.draw(mushroomSprites[i]);
-	 }
+
+        
 
         window.display();
         window.clear();
@@ -282,4 +318,77 @@ void drawBullet(sf::RenderWindow& window, float bullet[], sf::Sprite& bulletSpri
     bulletSprite.setPosition(bullet[x], bullet[y]);
     window.draw(bulletSprite);
 }
+
+//function to handleplayermovement easy
+void fighterMove(sf::Event& event, float player[], int resolutionX, int resolutionY, int boxPixelsX, int boxPixelsY, int gameColumns) {
+    // easy to read
+    const int x = 0;
+    const int y = 1;
+
+    // move left
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && player[x] > 0) {
+        player[x] -= 1;
+    }
+    // move right
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && player[x] < resolutionX - boxPixelsX) {
+        player[x] += 1;
+    }
+    // move up
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && player[y] > (gameColumns - 5) * boxPixelsY) {
+        player[y] -= 1;
+    }
+    // move down
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && player[y] < resolutionY - boxPixelsY) {
+        player[y] += 1;
+    }
+}
+//function to draw centipede
+void drawCentipede(sf::RenderWindow& window, sf::Sprite& centipedeSprite, sf::Texture& centipedeTexture, sf::Texture& centipedeHeadTexture, int totalcentipieces, float centipedeX[], float centipedeY[], int boxPixelsX, int boxPixelsY) {
+    for (int i = 0; i < totalcentipieces; i++) {
+        if (i == 11) // for head
+        {
+            centipedeSprite.setTexture(centipedeHeadTexture);
+        } else // body
+        {
+            centipedeSprite.setTexture(centipedeTexture);
+        }
+
+        centipedeSprite.setTextureRect(sf::IntRect(0, 0, boxPixelsX, boxPixelsY));
+        centipedeSprite.setPosition(centipedeX[i], centipedeY[i]);
+        window.draw(centipedeSprite);
+    }
+}
+
+
+void bulletHitsShroom(float bullet[], int totalshrooms, float mushroomX[], float mushroomY[], int bulletHitshroom[], sf::Sprite mushroomSprites[], int boxPixelsX, int boxPixelsY) {
+    if (!bullet[exists]) {
+        return; // No collision check if the bullet doesn't exist
+    }
+
+    for (int i = 0; i < totalshrooms; ++i) {
+        if (bullet[x] < mushroomX[i] + boxPixelsX &&
+            bullet[x] + boxPixelsX > mushroomX[i] &&
+            bullet[y] < mushroomY[i] + boxPixelsY &&
+            bullet[y] + boxPixelsY > mushroomY[i]) {
+
+            bulletHitshroom[i]++;
+
+            if (bulletHitshroom[i] == 1) {
+                mushroomSprites[i].setTextureRect(sf::IntRect(32, 0, boxPixelsX, boxPixelsY));
+            } else if (bulletHitshroom[i] == 2) {
+                mushroomX[i] = -987;  //pull a lil sneaky just yeet mushroom out of screen
+                mushroomY[i] = -875;
+            }
+            bullet[exists] = false;
+        }
+    }
+}
+
+void drawShrooms(sf::RenderWindow& window, int totalshrooms, float mushroomX[], float mushroomY[], sf::Sprite mushroomSprites[]) {
+    for (int i = 0; i < totalshrooms; ++i) {
+        mushroomSprites[i].setPosition(mushroomX[i], mushroomY[i]);
+        window.draw(mushroomSprites[i]);
+    }
+}
+
 
